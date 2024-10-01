@@ -1,0 +1,20 @@
+name: Setup Version
+description: 'Setup Version'
+outputs:
+  APP_VERSION:
+    description: 'App Version'
+    value: ${{ steps.version.outputs.APP_VERSION }}
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Write Version'
+      id: version
+      shell: bash
+      run: |
+        if [ "${{ github.ref_type }}" == "tag" ]; then
+          APP_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+        else
+          APP_VERSION=$(xcodebuild -showBuildSettings | awk -F ' = ' '/MARKETING_VERSION/ {print $2}')
+        fi
+        echo $APP_VERSION
+        echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
